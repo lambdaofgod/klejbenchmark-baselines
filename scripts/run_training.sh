@@ -6,12 +6,15 @@ IFS=$'\n\t'
 RUN_ID_PREFIX="klej_herbert"
 DATA_PATH="klej_data"
 OUTPUT_PATH="output"
-TOKENIZER_NAME_OR_PATH="allegro/herbert-klej-cased-tokenizer-v1"  # local path or the name of the transformers tokenizer
-MODEL_NAME_OR_PATH="allegro/herbert-klej-cased-v1"  # local path or the name of the transformers model
+TOKENIZER_NAME_OR_PATH=$1  # local path or the name of the transformers tokenizer
+MODEL_NAME_OR_PATH=$1  # local path or the name of the transformers model
+MODEL_NAME=$2
 
-task_names=("nkjp-ner" "cdsc-e" "cdsc-r" "cbd" "polemo2.0-in" "polemo2.0-out" "dyk" "psc" "ar")
+task_names=("cbd")
+# "polemo2.0-in" "polemo2.0-out" "ar")
+# ("nkjp-ner" "cdsc-e" "cdsc-r" "dyk" "psc" "ar")
 run_date="$(date +%Y%m%d_%H%M%S)"
-run_id="${RUN_ID_PREFIX}_${run_date}"
+run_id="${MODEL_NAME}_${run_date}"
 
 # Create output dir
 mkdir -p "${OUTPUT_PATH}/submissions/${run_id}/"
@@ -23,12 +26,12 @@ for task_name in "${task_names[@]}"; do
     # PSC task requires longer sequences
     if [[ "${task_name}" == "psc" ]]; then
         max_len=510
-        batch_size=8
-        gradient_accumulation_steps=4
+        batch_size=4
+        gradient_accumulation_steps=8
     else
-        max_len=256
+        max_len=128
         batch_size=16
-        gradient_accumulation_steps=2
+        gradient_accumulation_steps=4
     fi
 
     # Run task training
